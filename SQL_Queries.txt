@@ -1,0 +1,110 @@
+Create database Online_Bookstore;
+use Online_Bookstore;
+
+1) create table Books(
+bookID int auto_increment primary key,
+title varchar(100),
+authorID int,
+price int,
+category varchar (100)
+);
+
+desc books;
+
+2) insert into books
+(title,authorID,price,category) values
+('Pythonbasics', 1, 500, 'programming'),
+('SQLMastery',2,450,'Database'),
+('Data Science for All',1,700,'Data'),
+('Power BI Dashboarding',3,550,'Data');
+
+SELECT * FROM BOOKS;
+
+3) create table Authors(
+author_ID int auto_increment primary key,
+author_name varchar(100)
+);
+
+4) insert into authors(author_name)values
+('John Smith'),
+('Priya Ramesh'),
+('David Miller');
+
+select * from authors;
+
+5) create table orders(
+order_id int auto_increment primary key,
+book_id int,
+quantity int,
+customer_id	int,
+order_date date
+);
+
+6) insert into orders(book_id,quantity,customer_id,order_date) values
+(1,2,101,'2024-07-01'),
+(3,1,102,'2024-07-02'),
+(2,3,101,'2024-07-03'),
+(4,2,103,'2024-07-04');
+
+select * from orders;
+
+7) create table customers(
+customer_id	int primary key,
+customer_name varchar(100),
+city varchar(100)
+);
+
+8) insert into customers(customer_id,customer_name,city) values
+(101,'Ravi kumar','chennai'),
+(102,'Meena devi','mumbai'),
+(103,'Alex Johnson','Delhi');
+
+select * from customers;
+
+10) #Subqueries in SELECT
+SELECT 
+    title,
+    price,
+    (SELECT SUM(quantity) 
+     FROM Orders 
+     WHERE Orders.book_id = books.bookID) AS total_quantity_sold
+FROM Books;
+
+# Subqueries in WHERE
+SELECT title, price
+FROM Books
+WHERE price > (SELECT AVG(price) FROM Books);
+
+# Subqueries in FROM
+SELECT category, avg_price
+FROM (
+    SELECT category, AVG(price) AS avg_price
+    FROM Books
+    GROUP BY category
+) AS CategoryAvg
+WHERE avg_price > 500;
+
+# Using IN with Subqueries
+SELECT customer_name
+FROM Customers
+WHERE customer_id IN (
+    SELECT customer_id
+    FROM Orders
+    WHERE book_id IN (
+        SELECT bookID
+        FROM Books
+        WHERE authorID= (
+            SELECT author_ID FROM Authors WHERE author_name = 'John Smith'
+        )
+    )
+);
+
+# Using EXISTS with Subqueries
+SELECT author_name
+FROM Authors a
+WHERE EXISTS (
+    SELECT 1
+    FROM Books b
+    JOIN Orders o ON b.bookID = o.book_id
+    WHERE b.authorID = a.author_ID
+);
